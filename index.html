@@ -1,0 +1,140 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Heraldry</title>
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Preload key images -->
+  <link rel="preload" as="image" href="gallery/pages/cover.png">
+  <link rel="preload" as="image" href="gallery/pages/letter.png">
+  <link rel="preload" as="image" href="gallery/pages/wall.png">
+  <link rel="preload" as="image" href="gallery/pages/back.png">
+
+  <link rel="preload" as="image" href="gallery/controls/ppage.png">
+  <link rel="preload" as="image" href="gallery/controls/npage.png">
+  <link rel="preload" as="image" href="gallery/controls/cleft.png">
+  <link rel="preload" as="image" href="gallery/controls/cright.png">
+  <link rel="preload" as="image" href="gallery/controls/volon.png">
+  <link rel="preload" as="image" href="gallery/controls/voloff.png">
+  <link rel="preload" as="image" href="gallery/controls/showmessageicon.png">
+
+  <!-- Preload sounds -->
+  <link rel="preload" as="audio" href="gallery/sounds/glissando.mp3">
+  <link rel="preload" as="audio" href="gallery/sounds/music.mp3">
+  <link rel="preload" as="audio" href="gallery/sounds/flip1.mp3">
+  <link rel="preload" as="audio" href="gallery/sounds/flip2.mp3">
+  <link rel="preload" as="audio" href="gallery/sounds/flip3.mp3">
+  <link rel="preload" as="audio" href="gallery/sounds/flip4.mp3">
+  <link rel="preload" as="audio" href="gallery/sounds/flip5.mp3">
+  <link rel="preload" as="audio" href="gallery/sounds/flip6.mp3">
+  <link rel="preload" as="audio" href="gallery/sounds/flip7.mp3">
+  <link rel="preload" as="audio" href="gallery/sounds/flip8.mp3">
+  <link rel="preload" as="audio" href="gallery/sounds/flip9.mp3">
+  <link rel="preload" as="audio" href="gallery/sounds/flip10.mp3">
+</head>
+
+<body>
+  <!-- Curtain intro -->
+  <div id="curtain-overlay" aria-hidden="false">
+    <img id="curtain-left"  src="gallery/controls/cleft.png"  alt="">
+    <img id="curtain-right" src="gallery/controls/cright.png" alt="">
+    <button id="begin-button" type="button">Tap to Begin</button>
+  </div>
+
+  <!-- Main stage -->
+  <div id="slideshow">
+    <!-- Page-turn overlay (JS sizes to the ACTIVE page-image rect) -->
+    <div id="turn" aria-hidden="true">
+      <div class="sheet sheet-front visible" id="sheetFront">
+        <img id="turnFrontImg" alt="">
+      </div>
+      <!-- kept for compatibility; never shown after this fix -->
+      <div class="sheet sheet-back hidden" id="sheetBack">
+        <img id="turnBackImg" alt="">
+      </div>
+    </div>
+    <div id="turnShadow" aria-hidden="true"></div>
+
+    <!-- Slides -->
+    <section class="slide active" data-index="0" id="slide-0">
+      <img src="gallery/pages/cover.png" alt="Cover Page">
+    </section>
+
+    <section class="slide" data-index="1" id="slide-1">
+      <img src="gallery/pages/letter.png" alt="Main Letter">
+    </section>
+
+    <section class="slide" data-index="2" id="slide-2">
+      <img src="gallery/pages/wall.png" alt="Text Wall Background">
+      <button id="close-text" type="button" title="Close Text" aria-label="Close message">&times;</button>
+      <div class="text-wall" id="textWall" style="display:none;">
+        <div class="text-wall-content" id="textWallContent"><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+<html><head><meta name="qrichtext" content="1" /><meta charset="utf-8" /><style type="text/css">
+p, li { white-space: pre-wrap; }
+hr { height: 1px; border-width: 0; }
+li.unchecked::marker { content: "\2610"; }
+li.checked::marker { content: "\2612"; }
+</style></head><body style=" font-family:'Segoe UI'; font-size:11px; font-weight:400; font-style:normal;">
+<p align="center" style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:250%;"><span style=" font-family:'Papyrus'; font-size:48pt; color:#ffffff;">Dear Angel Hill,</span></p>
+<p align="center" style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:250%;"><span style=" font-family:'Papyrus'; font-size:13pt; font-weight:700; color:#ffffff; background-color:transparent;">I wanted to send this letter of encouragement. Sorry this took so long. I had a pile of school projects, so I had to push this back, and then the holidays got busy with travel. But after our K-D, I really wanted to follow through and write to you.</span></p>
+<p align="center" style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:250%;"><span style=" font-family:'Papyrus'; font-size:13pt; font-weight:700; color:#ffffff; background-color:transparent;">I hated school. It wasn’t a very fruitful place for me. I struggled in classes, and honestly, a lot of the things I’m passionate about today were things I wasn’t naturally good at in structured school environments.</span></p>
+<p align="center" style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:250%;"><span style=" font-family:'Papyrus'; font-size:13pt; font-weight:700; color:#ffffff; background-color:transparent;">School taught me that I’m terrible at many things, and over the years I realized that what I was really struggling with was structure itself. It is a very structured environment—so much so that I couldn’t build the systems and rhythms I personally needed in order to do well.</span></p>
+<p align="center" style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:250%;"><span style=" font-family:'Papyrus'; font-size:13pt; font-weight:700; color:#ffffff; background-color:transparent;">School measures certain kinds of ability, encouraging what it likes and dismissing things it doesn’t care about. I say all this because I believe you are the opposite of me in that regard. The structure of school gives you goals and targets to aim for, and that helps you work hard and draw out your best. But outside of school, it can sometimes feel unmotivating because there isn’t a grade attached to it.</span></p>
+<p align="center" style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:250%;"><span style=" font-family:'Papyrus'; font-size:13pt; font-weight:700; color:#ffffff; background-color:transparent;">I want to encourage you to push yourself to find passions you genuinely care about and to deliberately give them time. Not because you will immediately excel, but because growth requires space. Who’s to say what talents you haven’t discovered yet simply because you never gave them enough time? And who’s to say how God might use those gifts—not only to help you grow, but to strengthen the people around you?</span></p>
+<p align="center" style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:250%;"><span style=" font-family:'Papyrus'; font-size:13pt; font-weight:700; color:#ffffff; background-color:transparent;">The good side of this is that you can create your own metrics—standards that are meaningful to you. You are a very encouraging sister. I think you have a real heart for encouraging others, and it shows. I also know that you want to become a better Bible talk leader. So start there.</span></p>
+<p align="center" style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:250%;"><span style=" font-family:'Papyrus'; font-size:13pt; font-weight:700; color:#ffffff; background-color:transparent;">Whatever you decide to pursue, I’m confident that if you give it time and consistency, you will excel.</span></p>
+<p align="center" style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:250%;"><span style=" font-family:'Papyrus'; font-size:13pt; font-weight:700; color:#ffffff; background-color:transparent;">Perfectionism can make it hard to start. But excellence doesn’t come from waiting until you’re good at something—it comes from beginning when you’re not. If you step into things consistently, even imperfectly, I genuinely believe you will grow into them.</span></p>
+<p align="center" style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:250%;"><span style=" font-family:'Papyrus'; font-size:13pt; font-weight:700; color:#ffffff; background-color:transparent;">Keep growing. Try new things—not just in structured spaces, but in the places you choose for yourself. That’s often where calling becomes clear.</span></p>
+<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Papyrus'; font-size:13pt; font-weight:700; color:#ffffff;"><br /></p>
+<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><br /></p>
+<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><br /></p>
+<p align="center" style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:250%;"><span style=" font-family:'Papyrus'; font-size:10pt; font-weight:700; font-style:italic; color:#ffffff; background-color:transparent;">P.S. Did you ever start junk journaling?</span></p>
+<p align="center" style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:250%; font-family:'Papyrus'; font-size:10pt; font-weight:700; font-style:italic; color:#ffffff;"><br /></p>
+<p align="center" style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:250%;"><span style=" font-family:'Papyrus'; font-size:10pt; font-weight:700; font-style:italic; color:#ffffff; background-color:transparent;">P.P.S. Did you ever start reading Yumi and the Nightmare Painter? </span></p>
+<p align="center" style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:250%;"><span style=" font-family:'Papyrus'; font-size:10pt; font-weight:700; font-style:italic; color:#ffffff; background-color:transparent;">I’m always trying to get more people into Brandon Sanderson’s books so I have more people to talk with when new ones come out.</span></p></body></html></div>
+      </div>
+    </section>
+
+    <section class="slide" data-index="3" id="slide-3">
+      <img src="gallery/pages/back.png" alt="Final Backdrop">
+    </section>
+
+    <!-- Navigation -->
+    <button id="prev" type="button" title="Previous page" aria-label="Previous page">
+      <img src="gallery/controls/ppage.png" alt="">
+    </button>
+    <button id="next" type="button" title="Next page" aria-label="Next page">
+      <img src="gallery/controls/npage.png" alt="">
+    </button>
+
+    <div id="progress" aria-live="polite">Page 1 of 4</div>
+
+    <!-- Show message (reopen) icon -->
+    <img
+      id="open-text"
+      src="gallery/controls/showmessageicon.png"
+      alt="Show Message"
+      title="Show Message"
+      style="display:none;"
+    />
+  </div>
+
+  <!-- Volume control (slider injected by JS) -->
+  <div id="volume-control">
+    <img id="volume-icon" src="gallery/controls/volon.png" alt="Volume" title="Volume">
+  </div>
+
+  <!-- Background music -->
+  <audio id="bg-music" src="gallery/sounds/music.mp3" preload="auto" loop playsinline></audio>
+
+  <!-- Injected constant (0–100 int, at build time) -->
+  <script>
+    const INITIAL_VOLUME = 60;
+  </script>
+
+  <script src="script.js"></script>
+</body>
+</html>
