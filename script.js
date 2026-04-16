@@ -25,8 +25,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const closeText  = document.getElementById('close-text');
   const openText   = document.getElementById('open-text');
 
+  const slideshowEl = document.getElementById('slideshow');
+  const volumeControl = document.getElementById('volume-control');
   const volIcon   = document.getElementById('volume-icon');
   const music     = document.getElementById('bg-music');
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const curtainIntroRevealMs = prefersReducedMotion ? 80 : 650;
+  const curtainOpenMs = prefersReducedMotion ? 140 : 1100;
+  const curtainCleanupMs = curtainOpenMs + 150;
+  const flipDurationMs = prefersReducedMotion ? 0 : 620;
+  const musicFadeMs = prefersReducedMotion ? 120 : 900;
 
   // ─────────────────────────────────────────────────────────────
   // State
@@ -46,6 +54,122 @@ document.addEventListener('DOMContentLoaded', () => {
   // Audio pool
   const flipPool = Array.from({length: 10}, (_, i) => `gallery/sounds/flip${i+1}.mp3`);
   const glissSrc = 'gallery/sounds/glissando.mp3';
+  let stageReady = false;
+  let introStarted = false;
+
+  function setHiddenState(el, hidden){
+    if (!el) return;
+    el.setAttribute('aria-hidden', hidden ? 'true' : 'false');
+  }
+
+  function bindPress(el, handler){
+    el.addEventListener('click', handler);
+    el.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      e.preventDefault();
+      handler(e);
+    });
+  }
+
+  function markSlideAssetFailed(slide, img){
+    if (!slide || slide.classList.contains('asset-failed')) return;
+    slide.classList.add('asset-failed');
+    slide.dataset.fallbackLabel = img?.getAttribute('alt') || 'Page image unavailable';
+  }
+
+  function installImageFallbacks(){
+    slides.forEach((slide) => {
+      const img = slideImageEl(slide);
+      if (!img) return;
+
+      const handleError = () => markSlideAssetFailed(slide, img);
+      img.addEventListener('error', handleError, { once: true });
+      if (img.complete && img.naturalWidth === 0){
+        handleError();
+      }
+    });
+
+    [cLeft, cRight].forEach((img) => {
+      const handleError = () => {
+        img.style.display = 'none';
+        overlay.classList.add('curtain-fallback');
+      };
+      img.addEventListener('error', handleError, { once: true });
+      if (img.complete && img.naturalWidth === 0){
+        handleError();
+      }
+    });
+  }
+
+  function waitForImageReady(img){
+    if (!img) return Promise.resolve(false);
+
+    if (img.complete){
+      if (img.naturalWidth === 0) return Promise.resolve(false);
+      if (typeof img.decode === 'function'){
+        return img.decode().then(() => true).catch(() => true);
+      }
+      return Promise.resolve(true);
+    }
+
+    return new Promise((resolve) => {
+      const handleLoad = () => {
+        if (typeof img.decode === 'function'){
+          img.decode().then(() => resolve(true)).catch(() => resolve(true));
+          return;
+        }
+        resolve(true);
+      };
+
+      img.addEventListener('load', handleLoad, { once: true });
+      img.addEventListener('error', () => resolve(false), { once: true });
+    });
+  }
+
+  function waitForCriticalAssets(){
+    const criticalImages = [cLeft, cRight, slideImageEl(slides[0])].filter(Boolean);
+    const assetWait = Promise.allSettled(criticalImages.map(waitForImageReady));
+    const timeoutWait = new Promise((resolve) => {
+      setTimeout(resolve, prefersReducedMotion ? 120 : 1600);
+    });
+    return Promise.race([assetWait, timeoutWait]);
+  }
+
+  function revealStage(){
+    if (stageReady) return;
+    stageReady = true;
+    slideshowEl.style.opacity = '';
+    slideshowEl.style.visibility = '';
+    slideshowEl.style.pointerEvents = '';
+    volumeControl.style.opacity = '';
+    volumeControl.style.visibility = '';
+    volumeControl.style.pointerEvents = '';
+    setHiddenState(slideshowEl, false);
+    setHiddenState(volumeControl, false);
+    document.body.classList.add('stage-ready');
+    setActiveIndex(0);
+    syncButtons();
+    syncWallUI();
+    setTurnVisible(false);
+  }
+
+  function startCurtainIntro(){
+    if (introStarted) return;
+    introStarted = true;
+
+    function onIntroEnd(e){
+      if (e.animationName !== 'curtainIntroFadeIn') return;
+      overlay.removeEventListener('animationend', onIntroEnd);
+      revealStage();
+    }
+
+    overlay.addEventListener('animationend', onIntroEnd);
+    setTimeout(revealStage, curtainIntroRevealMs);
+
+    requestAnimationFrame(() => {
+      overlay.classList.add('is-visible');
+    });
+  }
 
   // ─────────────────────────────────────────────────────────────
   // Helpers
@@ -95,22 +219,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function isWallPage(){ return idx === 2; }
 
+  function setWallOpen(open){
+    wall.style.display = open ? 'block' : 'none';
+    setHiddenState(wall, !open);
+    openText.style.display = open ? 'none' : 'block';
+    setHiddenState(openText, open);
+    closeText.style.display = open ? 'block' : 'none';
+    setHiddenState(closeText, !open);
+  }
+
   function syncWallUI(){
     const onWall = isWallPage();
-    closeText.style.display = onWall ? 'block' : 'none';
 
     if (!onWall){
       wall.style.display = 'none';
       openText.style.display = 'none';
+      closeText.style.display = 'none';
+      setHiddenState(wall, true);
+      setHiddenState(openText, true);
+      setHiddenState(closeText, true);
       return;
     }
 
     if (!wallClosedByUser){
-      wall.style.display = 'block';
-      openText.style.display = 'none';
+      setWallOpen(true);
     } else {
-      wall.style.display = 'none';
-      openText.style.display = 'block';
+      setWallOpen(false);
     }
   }
 
@@ -269,7 +403,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     playFlip();
 
-    const DURATION = 620;
+    const DURATION = flipDurationMs;
+    if (DURATION <= 0){
+      cleanupTransient(curSlide, tgtSlide);
+      setActiveIndex(tIdx);
+      setTurnVisible(false);
+      turn.style.width = '0px';
+      turn.style.height = '0px';
+      turnShadow.style.width = '0px';
+      turnShadow.style.height = '0px';
+      flipping = false;
+      syncButtons();
+      return;
+    }
+
     const t0 = performance.now();
 
     function step(now){
@@ -334,7 +481,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }catch(_){}
 
       const target = clamp(v / 100, 0, 1);
-      const fadeMs = 900;
+      const fadeMs = musicFadeMs;
       const start = performance.now();
 
       function fadeStep(now){
@@ -364,9 +511,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Curtains move
-    cLeft.style.animation = 'curtainLeftOut 1100ms cubic-bezier(.2,.9,.1,1) forwards';
-    cRight.style.animation = 'curtainRightOut 1100ms cubic-bezier(.2,.9,.1,1) forwards';
-    overlay.style.animation = 'curtainOverlayFadeOut 1100ms cubic-bezier(.2,.9,.1,1) forwards';
+    cLeft.style.animation = `curtainLeftOut ${curtainOpenMs}ms cubic-bezier(.2,.9,.1,1) forwards`;
+    cRight.style.animation = `curtainRightOut ${curtainOpenMs}ms cubic-bezier(.2,.9,.1,1) forwards`;
+    overlay.style.animation = `curtainOverlayFadeOut ${curtainOpenMs}ms cubic-bezier(.2,.9,.1,1) forwards`;
 
     beginBtn.disabled = true;
     beginBtn.style.opacity = '0';
@@ -377,10 +524,10 @@ document.addEventListener('DOMContentLoaded', () => {
       overlay.setAttribute('aria-hidden', 'true');
       setTimeout(() => overlay.remove(), 250);
       syncButtons();
-    }, 1250);
+    }, curtainCleanupMs);
   }
 
-  beginBtn.addEventListener('click', (e) => {
+  bindPress(beginBtn, (e) => {
     e.preventDefault();
     openCurtain();
   });
@@ -400,28 +547,28 @@ document.addEventListener('DOMContentLoaded', () => {
       flipTo(idx + 1);
     } else if (e.key === 'Escape'){
       if (isWallPage() && wall.style.display !== 'none'){
-        wall.style.display = 'none';
-        openText.style.display = 'block';
+        setWallOpen(false);
         wallClosedByUser = true;
+        openText.focus({preventScroll:true});
       }
     }
   });
 
   closeText.addEventListener('click', () => {
     if (!isWallPage()) return;
-    wall.style.display = 'none';
-    openText.style.display = 'block';
+    setWallOpen(false);
     wallClosedByUser = true;
+    openText.focus({preventScroll:true});
   });
 
-  openText.addEventListener('click', () => {
+  bindPress(openText, () => {
     if (!isWallPage()) return;
-    wall.style.display = 'block';
-    openText.style.display = 'none';
+    setWallOpen(true);
     wallClosedByUser = false;
+    closeText.focus({preventScroll:true});
   });
 
-  volIcon.addEventListener('click', () => {
+  bindPress(volIcon, () => {
     const s = ensureSlider();
     s.style.display = (s.style.display === 'none' || !s.style.display) ? 'block' : 'none';
   });
@@ -430,9 +577,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initialize immediately (still session-only)
   setVolume0to100(loadVolume0to100());
+  setHiddenState(wall, true);
+  setHiddenState(openText, true);
+  setHiddenState(closeText, true);
 
-  setActiveIndex(0);
-  syncButtons();
-  syncWallUI();
-  setTurnVisible(false);
+  installImageFallbacks();
+  waitForCriticalAssets().finally(startCurtainIntro);
 });
